@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>hCaptcha Example</title>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <style>
+        .message {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/sign-user-up">
+        <div class="h-captcha" data-sitekey="{{ site_key }}"></div>
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="message" class="message" style="display:none;"></div>
+
+    <script>
+    document.querySelector('form').onsubmit = function(event) {
+        event.preventDefault();  // Prevent form submission
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(text => {
+            // Display success message
+            document.getElementById('message').innerText = 'Registration successful!';
+            document.getElementById('message').className = 'message success';
+            document.getElementById('message').style.display = 'block';
+        })
+        .catch(error => {
+            // Handle error
+            document.getElementById('message').innerText = 'Error occurred. Please try again.';
+            document.getElementById('message').className = 'message error';
+            document.getElementById('message').style.display = 'block';
+        });
+    };
+    </script>
+</body>
+</html>
